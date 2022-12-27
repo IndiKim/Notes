@@ -1,35 +1,53 @@
 package com.geektech.notes
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.geektech.notes.databinding.ItemNoteBinding
 
-class NoteAdapter : RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
+class NoteAdapter(val listener: IItemClick) : RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
 
-    var list: MutableList<String> = ArrayList()
+    private val list: MutableList<Note> = ArrayList()
 
-    fun addNote(text: String){
-        list.add(text)
+    fun addNote(note: Note){
+        list.add(note)
         notifyItemInserted(list.size) // при ошибке пишем -1
     }
 
-       inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-            var text = itemView.findViewById<TextView>(R.id.item_text)
+    fun delete(pos: Int){
+        list.removeAt(pos)
+        notifyItemRemoved(pos)
+    }
 
-            fun bind(message: String){
-                text.text = message
-                text.setOnClickListener{
-                    list.removeAt(adapterPosition)
-                    notifyItemRemoved(list.size)
+    fun edit(pos: Int, note: Note){
+        list.set(pos,note)
+        notifyItemChanged(pos)
+
+    }
+
+    fun getList(): MutableList<Note>{
+        return list
+    }
+
+       inner class ViewHolder(private val binding: ItemNoteBinding): RecyclerView.ViewHolder(binding.root){
+
+            fun bind(note: Note){
+                binding.itemText.text = note.title
+                binding.itemTextDesc.text = note.desc
+                binding.root.setOnLongClickListener{
+                    listener.delete(adapterPosition)
+                    true
+                }
+                binding.root.setOnClickListener{
+                    listener.edit(adapterPosition)
                 }
             }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_note, parent, false))
+        val view = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
