@@ -6,7 +6,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.geektech.notes.databinding.ItemNoteBinding
 
-class NoteAdapter(val listener: IItemClick) : RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
+class NoteAdapter(val listener: NoteFragment) : RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
 
     private val list: MutableList<Note> = ArrayList()
 
@@ -26,6 +26,11 @@ class NoteAdapter(val listener: IItemClick) : RecyclerView.Adapter<NoteAdapter.V
 
     }
 
+    fun sort(){
+        list.sortBy{ it.title}
+        notifyDataSetChanged()
+    }
+
     fun getList(): MutableList<Note>{
         return list
     }
@@ -35,11 +40,11 @@ class NoteAdapter(val listener: IItemClick) : RecyclerView.Adapter<NoteAdapter.V
             fun bind(note: Note){
                 binding.itemText.text = note.title
                 binding.itemTextDesc.text = note.desc
-                binding.root.setOnLongClickListener{
+                binding.iconDelete.setOnClickListener{
                     listener.delete(adapterPosition)
-                    true
+
                 }
-                binding.root.setOnClickListener{
+                binding.iconEdit.setOnClickListener{
                     listener.edit(adapterPosition)
                 }
             }
